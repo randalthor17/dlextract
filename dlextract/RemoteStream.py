@@ -1,12 +1,12 @@
 import io, httpx
-from typing import Optional
+
 
 class RemoteStream(io.RawIOBase):
-    def __init__(self, url: str, buffer_size: int = 64*1024):
+    def __init__(self, url: str, buffer_size: int = 256 * 1024):
         self.url = url
         self.buffer_size = buffer_size
         self.pos: int = 0
-        self._size: Optional[int] = None
+        self._size: int | None = None
 
         # Internal buffer
         self._buffer: bytes = b""
@@ -17,18 +17,27 @@ class RemoteStream(io.RawIOBase):
 
         # Get total file size
         response = self.client.head(self.url)
-        response.raise_for_status() # Check if there's an error
+        response.raise_for_status()  # Check if there's an error
         self._size = int(response.headers.get("Content-Length", 0))
 
     # Define properties
     @property
-    def size(self) -> int: return self._size or 0
-    def readable(self) -> bool: return True
-    def seekable(self) -> bool: return True
-    def writable(self) -> bool: return False
-    def tell(self) -> int: return self.pos
+    def size(self) -> int:
+        return self._size or 0
 
-    def seek(self, offset: int, whence:int = io.SEEK_SET) -> int:
+    def readable(self) -> bool:
+        return True
+
+    def seekable(self) -> bool:
+        return True
+
+    def writable(self) -> bool:
+        return False
+
+    def tell(self) -> int:
+        return self.pos
+
+    def seek(self, offset: int, whence: int = io.SEEK_SET) -> int:
         if whence == io.SEEK_SET:
             self.pos = offset
         elif whence == io.SEEK_CUR:
@@ -41,18 +50,24 @@ class RemoteStream(io.RawIOBase):
     def read(self, size: int = -1) -> bytes:
         if (size == -1) or (self.pos + size > self.size):
             size = self.size - self.pos
-        if size <= 0: return b"" # Return nothing if we're at the end
+        if size <= 0: return b""  # Return nothing if we're at the end
 
         # Check if the data we need is already in the local buffer
         buf_end = self._buffer_start + len(self._buffer)
         if (self._buffer_start <= self.pos < buf_end) and (self.pos + size <= buf_end):
             offset = self.pos - self._buffer_start
-            data = self._buffer[offset : offset + size] # get the bytes from offset to offset+size
+            data = self._buffer[offset: offset + size]  # get the bytes from offset to offset+size
             self.pos += size
             return data
 
+        # If the data we're fetching is big, then fetch more
+        if size > 1024 * 1024:
+            current_buffer_goal = 4 * 1024 * 1024
+        else:
+            current_buffer_goal = self.buffer_size
+
         # If the data is not in the buffer, fetch anew
-        fetch_size = max(size, self.buffer_size) # fetch at least the buffer amount
+        fetch_size = max(size, current_buffer_goal)  # fetch at least the buffer amount
         end_range = min(self.pos + fetch_size - 1, self.size - 1)
 
         # Make the request
@@ -84,15 +99,14 @@ if __name__ == "__main__":
     # see if the file is a zip
     stream.seek(0)
     magic_bytes = stream.read(4)
-    print(f"Magic bytes: {magic_bytes.hex().upper()}") # should be 504B0304 for zips
+    print(f"Magic bytes: {magic_bytes.hex().upper()}")  # should be 504B0304 for zips
 
     # Attempt to read the zip
     import zipfile
+
     with zipfile.ZipFile(stream) as zf:
         print("Files found in the archive:")
         for file in zf.namelist():
             print(f"- {file}")
 
     stream.close()
-
-
