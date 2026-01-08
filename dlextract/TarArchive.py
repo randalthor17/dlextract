@@ -1,5 +1,5 @@
-from dlextract.ArchiveEngine import ArchiveEngine
-from dlextract.RemoteStream import RemoteStream
+from dlextract.Protocols import ArchiveEngineProtocol
+from dlextract.FileIO import RemoteStream
 import tarfile
 
 TAR_COMPRESSION_TYPES = {
@@ -13,7 +13,7 @@ TAR_COMPRESSION_TYPES = {
 
 }
 
-class TarArchiveEngine(ArchiveEngine):
+class TarArchiveEngine(ArchiveEngineProtocol):
 
     def __init__(self, stream: RemoteStream, password: str | None = None) -> None:
         self.stream = stream

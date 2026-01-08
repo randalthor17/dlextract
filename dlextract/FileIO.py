@@ -1,5 +1,7 @@
 import io, httpx
+from abc import ABC
 
+from py7zr import Py7zIO
 
 class RemoteStream(io.RawIOBase):
     def __init__(self, url: str, buffer_size: int = 256 * 1024):
@@ -87,7 +89,6 @@ class RemoteStream(io.RawIOBase):
     def close(self):
         self.client.close()
         super().close()
-
 
 # TEST
 if __name__ == "__main__":

@@ -1,0 +1,6 @@
+# The template for all archive formats
+from typing import Protocol, List
+
+class ArchiveEngineProtocol(Protocol):
+    def get_files(self) -> List[str]: ...
+    def extract_to_disk(self, filename: str, target_path: str): ...
