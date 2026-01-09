@@ -1,6 +1,40 @@
+"""Archive engine protocol definitions.
+
+This module declares `ArchiveEngineProtocol`, the interface that archive
+adapter classes (ZIP, 7z, RAR, etc.) must implement. The protocol keeps
+implementations decoupled from the rest of the codebase and documents the
+minimal contract an archive engine must satisfy.
+"""
+
 # The template for all archive formats
+from pathlib import Path
 from typing import Protocol, List
 
+
 class ArchiveEngineProtocol(Protocol):
-    def get_files(self) -> List[str]: ...
-    def extract_to_disk(self, filename: str, target_path: str): ...
+    """Protocol describing the minimal archive engine interface.
+
+    Implementations should provide ways to inspect archive contents and
+    to extract individual members to disk.
+    """
+
+    def get_files(self) -> List[Path]:
+        """Return a list of file paths contained in the archive.
+
+        Returns:
+            List[Path]: A list of Path objects for regular files inside the archive.
+        """
+        ...
+
+    def extract_to_disk(self, filename: Path, target_path: Path):
+        """Extract a single archive member to a filesystem path.
+
+        Args:
+            filename (Path): Path of the member inside the archive to extract.
+            target_path (Path): Destination path on the local filesystem.
+
+        Notes:
+            Implementations should create parent directories for `target_path`
+            as needed and raise appropriate exceptions on failure.
+        """
+        ...
