@@ -11,8 +11,8 @@ import zipfile
 from pathlib import Path
 from typing import List
 
-from dlextract.FileIO import RemoteStream
-from dlextract.Protocols import ArchiveEngineProtocol
+from .FileIO import RemoteStream
+from .Protocols import ArchiveEngineProtocol
 
 
 class ZipArchiveEngine(ArchiveEngineProtocol):
@@ -56,7 +56,7 @@ class ZipArchiveEngine(ArchiveEngineProtocol):
         # Map ZipInfo entries to pathlib.Path and filter out directories
         return [Path(f.filename) for f in self.archive.filelist if not f.is_dir()]
 
-    def extract_to_disk(self, filename: Path, target_path: Path):
+    def extract_to_disk(self, filename: Path, target_path: Path, progress_callback=None):
         """
         Extract a specific file from the ZIP archive to disk.
 
@@ -85,6 +85,9 @@ class ZipArchiveEngine(ArchiveEngineProtocol):
                 chunk_size = 128 * 1024  # 128 KB
                 while chunk := source.read(chunk_size):
                     target_file.write(chunk)
+                    if progress_callback:
+                        # Pass the number of bytes written to the callback
+                        progress_callback(len(chunk))
         except RuntimeError as e:
             # zipfile raises RuntimeError for encrypted members or bad passwords
             if "encrypted" in str(e).casefold():

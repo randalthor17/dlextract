@@ -22,16 +22,18 @@ class ArchiveEngineProtocol(Protocol):
         """Return a list of file paths contained in the archive.
 
         Returns:
-            List[Path]: A list of Path objects for regular files inside the archive.
+            List[pathlib.Path]: A list of pathlib.Path objects for regular files inside the archive.
         """
         ...
 
-    def extract_to_disk(self, filename: Path, target_path: Path):
+    def extract_to_disk(self, filename: Path, target_path: Path, progress_callback=None):
         """Extract a single archive member to a filesystem path.
 
         Args:
             filename (Path): Path of the member inside the archive to extract.
             target_path (Path): Destination path on the local filesystem.
+            progress_callback (callable|None): Optional callback called with the
+            number of bytes written on each write().
 
         Notes:
             Implementations should create parent directories for `target_path`

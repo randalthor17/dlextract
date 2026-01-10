@@ -8,6 +8,7 @@ dependencies = [
     "httpx>=0.28.1",
     "py7zr>=1.1.0",
     "rarfile>=4.2",
+    "tqdm>=4.67.1",
 ]
 
 [dependency-groups]

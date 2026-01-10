@@ -5,8 +5,8 @@ from typing import List
 
 import rarfile
 
-from dlextract.FileIO import RemoteStream
-from dlextract.Protocols import ArchiveEngineProtocol
+from .FileIO import RemoteStream
+from .Protocols import ArchiveEngineProtocol
 
 
 def _check_unrar_in_path():
@@ -63,7 +63,7 @@ class RarArchiveEngine(ArchiveEngineProtocol):
         """
         return [Path(f.filename) for f in self.archive.infolist() if not f.is_dir()]
 
-    def extract_to_disk(self, filename: Path, target_path: Path):
+    def extract_to_disk(self, filename: Path, target_path: Path, progress_callback=None):
         """
         Extracts a specific file from the RAR archive to the local disk.
 
@@ -87,6 +87,9 @@ class RarArchiveEngine(ArchiveEngineProtocol):
                 chunk_size = 128 * 1024  # 128 KB
                 while chunk := source.read(chunk_size):
                     target_file.write(chunk)
+                    if progress_callback:
+                        # Call the progress callback with the size of the chunk written
+                        progress_callback(len(chunk))
         except rarfile.PasswordRequired as e:
             print(f"Failed: {str(filename)} requires a password")
             raise e
