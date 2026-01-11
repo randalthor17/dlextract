@@ -308,7 +308,7 @@ class RemoteStream(io.RawIOBase):
         # require small reads from the start or end of the file. Prefetching
         # those regions prevents repeated tiny range requests.
         for cache in self._metadata_cache.values():
-            if cache and _is_in_cache_range(cache, size):
+            if cache and self._is_in_cache_range(cache, size):
                 offset = self.pos - cache["start"]
                 available = len(cache["data"]) - offset
                 if available > 0:
@@ -339,7 +339,7 @@ class RemoteStream(io.RawIOBase):
         # call will hit a fast-path or raise an exception.
         return self.read(size)
 
-    def _is_in_cache_range(cache, size: int) -> bool:
+    def _is_in_cache_range(self, cache, size: int) -> bool:
         return (cache["start"] <= self.pos < cache["end"] + 1) and (self.pos + size - 1 <= cache["end"])
 
     def close(self):

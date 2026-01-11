@@ -9,6 +9,7 @@ minimal contract an archive engine must satisfy.
 # The template for all archive formats
 from pathlib import Path
 from typing import Protocol, List
+from .FileIO import RemoteStream
 
 
 class ArchiveEngineProtocol(Protocol):
@@ -17,6 +18,7 @@ class ArchiveEngineProtocol(Protocol):
     Implementations should provide ways to inspect archive contents and
     to extract individual members to disk.
     """
+    stream: RemoteStream
 
     def get_files(self) -> List[Path]:
         """Return a list of file paths contained in the archive.
