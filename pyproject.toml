@@ -1,19 +1,32 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "dlextract"
 version = "0.1.0"
-description = "Add your description here"
-requires-python = ">=3.14"
+description = "Stream and extract remote archives without downloading them entirely."
+authors = [
+    { name = "randalthor17", email = "itsmehauhon@gmail.com" }
+    ]
+requires-python = ">=3.9"
 dependencies = [
     "click>=8.3.1",
-    #    "black>=25.12.0",
     "httpx>=0.28.1",
     "py7zr>=1.1.0",
     "rarfile>=4.2",
     "rich>=14.2.0",
+    "zipfile-zstd>=0.0.4",
 ]
 
 [dependency-groups]
 dev = [
     "black>=25.12.0",
+    "deptree>=0.0.12",
     "pytest>=9.0.2",
+    "vermin>=1.8.0",
 ]
+
+[project.scripts]
+dlextract = "dlextract.CLI:extract"
+

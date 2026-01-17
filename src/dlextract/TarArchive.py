@@ -1,6 +1,7 @@
-from dlextract.Protocols import ArchiveEngineProtocol
-from dlextract.FileIO import RemoteStream
 import tarfile
+
+from dlextract.FileIO import RemoteStream
+from dlextract.Protocols import ArchiveEngineProtocol
 
 TAR_COMPRESSION_TYPES = {
     # tar
@@ -13,6 +14,7 @@ TAR_COMPRESSION_TYPES = {
 
 }
 
+
 class TarArchiveEngine(ArchiveEngineProtocol):
 
     def __init__(self, stream: RemoteStream, password: str | None = None) -> None:
@@ -21,8 +23,8 @@ class TarArchiveEngine(ArchiveEngineProtocol):
 
         # Figure out compression type
         stream.seek(0)
-        magic_bytes = stream.read(8) # Read 8 bytes to cover all compression types
-        stream.seek(0) # Reset current byte
+        magic_bytes = stream.read(8)  # Read 8 bytes to cover all compression types
+        stream.seek(0)  # Reset current byte
         for signature, comp in TAR_COMPRESSION_TYPES.items():
             if magic_bytes.startswith(signature):
                 if not comp:
@@ -31,7 +33,7 @@ class TarArchiveEngine(ArchiveEngineProtocol):
                 else:
                     print(f"{comp} compression detected")
                     mode = f"r|{comp}"
-            else: # IDEK if this is possible
+            else:  # IDEK if this is possible
                 raise ValueError(f"Somehow, unknown compression detected")
 
         self.archive = tarfile.open(fileobj=self.stream, mode=mode)

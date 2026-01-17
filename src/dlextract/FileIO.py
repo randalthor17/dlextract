@@ -14,7 +14,7 @@ import httpx
 
 MIN_FETCH_SIZE = 25 * 1024 * 1024  # 25 MiB
 LARGE_REQUEST_THRESHOLD = 10 * 1024 * 1024  # 10 MiB
-DEFAULT_FETCH_SIZE = 100 * 1024 * 1024 # 100 MiB
+DEFAULT_FETCH_SIZE = 32 * 1024 * 1024 # 32 MiB
 
 class RemoteStream(io.RawIOBase):
     """File-like stream backed by an HTTP resource using Range requests.

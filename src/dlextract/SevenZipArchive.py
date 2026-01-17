@@ -197,6 +197,16 @@ class SevenZipArchiveEngine(ArchiveEngineProtocol):
         # Map py7zr's list entries to pathlib.Path, filtering out directories
         return [Path(f.filename) for f in self.archive.list() if not f.is_directory]
 
+    @property
+    def total_uncompressed_size(self) -> int:
+        """
+        Return the total uncompressed size of all files in the archive.
+
+        Returns:
+            int: Total uncompressed size in bytes.
+        """
+        return sum(f.uncompressed for f in self.archive.list() if not f.is_directory)
+
     def extract_to_disk(self, filename: Path, target_path: Path, progress_callback=None):
         """
         Extract a single file from the archive to disk.
@@ -218,30 +228,3 @@ class SevenZipArchiveEngine(ArchiveEngineProtocol):
         factory = SevenZipWriterFactory(target_path, progress_callback)
         self.archive.extract(targets=[str(filename)], factory=factory)
 
-        """OLD CODE"""
-        # Reset archive internal state before extraction
-        # self.archive.reset()
-
-        # Ask py7zr to extract the single target into the current working directory
-        # self.archive.extract(targets=[str(filename)], path=".")
-
-        # After extraction, move the file from the extracted path to the requested target
-        # if Path(str(filename)).exists(): # filename was originally inside the archive, not in the filesystem
-        #     if filename != target_path:
-        # Ensure the destination directory exists
-        #         os.makedirs(os.path.dirname(os.path.abspath(target_path)), exist_ok=True)
-        #         shutil.move(filename, target_path)
-
-        # Best-effort cleanup: remove a top-level directory py7zr may have created
-        #         filename_dir_chain = Path(filename).parts
-        #         if len(filename_dir_chain) > 1:
-        #             top_dir = filename_dir_chain[0]
-        #             if os.path.isdir(top_dir):
-        #                 try:
-        #                     shutil.rmtree(top_dir)
-        #                 except OSError:
-        # Ignore cleanup failures
-        #                     pass
-        # else:
-        # Extraction did not produce the expected file
-        #     raise FileNotFoundError(f"Failed to extract {filename}")

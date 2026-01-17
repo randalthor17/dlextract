@@ -63,6 +63,16 @@ class RarArchiveEngine(ArchiveEngineProtocol):
         """
         return [Path(f.filename) for f in self.archive.infolist() if not f.is_dir()]
 
+    @property
+    def total_uncompressed_size(self) -> int:
+        """
+        Returns the total uncompressed size of all files in the RAR archive.
+
+        Returns:
+            int: Total uncompressed size in bytes.
+        """
+        return sum(f.file_size for f in self.archive.infolist() if not f.is_dir())
+
     def extract_to_disk(self, filename: Path, target_path: Path, progress_callback=None):
         """
         Extracts a specific file from the RAR archive to the local disk.
@@ -83,10 +93,16 @@ class RarArchiveEngine(ArchiveEngineProtocol):
                 self.archive.open(str(filename), pwd=self.password) as source,
                 open(target_path, "wb") as target_file,
             ):
+                bytes_since_sync: int = 0
                 # The flow is RemoteStream -> RarArchiveEngine -> local file
                 chunk_size = 128 * 1024  # 128 KB
                 while chunk := source.read(chunk_size):
                     target_file.write(chunk)
+                    bytes_since_sync += 1
+                    if bytes_since_sync >=  1024:
+                        target_file.flush()
+                        os.fsync(target_file.fileno())
+                        bytes_since_sync = 0
                     if progress_callback:
                         # Call the progress callback with the size of the chunk written
                         progress_callback(len(chunk))

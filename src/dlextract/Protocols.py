@@ -42,3 +42,12 @@ class ArchiveEngineProtocol(Protocol):
             as needed and raise appropriate exceptions on failure.
         """
         ...
+
+    @property
+    def total_uncompressed_size(self) -> int:
+        """Return the total uncompressed size of all files in the archive.
+
+        Returns:
+            int: Total uncompressed size in bytes.
+        """
+        ...
