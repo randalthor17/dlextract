@@ -9,7 +9,7 @@ description = "Stream and extract remote archives without downloading them entir
 authors = [
     { name = "randalthor17", email = "itsmehauhon@gmail.com" }
     ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "click>=8.3.1",
     "httpx>=0.28.1",
