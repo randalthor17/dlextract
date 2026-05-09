@@ -169,7 +169,7 @@ class SevenZipArchiveEngine(ArchiveEngineProtocol):
         # Store inputs
         # py7zr expects the password as bytes in some versions, so encode it.
         self.stream = stream
-        self.password = password.encode("utf-8") if password else None
+        self.password = password if password else None
 
         try:
             # Initialize py7zr; this validates headers and might read the

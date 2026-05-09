@@ -8,7 +8,7 @@ Usage example (from shell):
 The implementation intentionally delegates archive handling to `dlextract.ArchiveEngine.get_extractor`, so this module focuses on the CLI user interaction, progress reporting, and writing files to disk.
 """
 
-from .ArchiveEngine import get_extractor
+import gc
 from pathlib import Path
 
 import click
@@ -16,7 +16,7 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, DownloadColumn, TransferSpeedColumn
 from rich.table import Table
 
-import gc
+from .ArchiveEngine import get_extractor
 
 # Create a single console instance for the CLI UI (rich console handles colors/formatting)
 console = Console()
